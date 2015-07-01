@@ -119,12 +119,14 @@ public class Launcher {
 
 			String epackage_class = commandLine.getOptionValue(E_PACKAGE_CLASS);
 			
+			LOGGER.info("Start loading the package");
 			Class<?> inClazz = Launcher.class.getClassLoader().loadClass(epackage_class);
 			EPackage _package = (EPackage) inClazz.getMethod("init").invoke(null);
 			
 			Resource metamodelResource = new XMIResourceImpl(URI.createFileURI("dummy"));
 		    metamodelResource.getContents().add(_package);
-
+		    LOGGER.info("Finish loading the package");
+		    
 			int size = Launcher.DEFAULT_AVERAGE_MODEL_SIZE;
 			if (commandLine.hasOption(SIZE)) {
 				Number number = (Number) commandLine.getParsedOptionValue(SIZE);
@@ -189,8 +191,11 @@ public class Launcher {
 					Math.round(referencesSize * (1 - GenericMetamodelConfig.DEFAULT_REFERENCES_DEVIATION)), 
 					Math.round(referencesSize * (1 + GenericMetamodelConfig.DEFAULT_REFERENCES_DEVIATION)));
 			
-		
+			long start = System.currentTimeMillis();
 			modelGen.runGeneration(resourceSet, numberOfModels, size, variation);
+			long end = System.currentTimeMillis();
+			LOGGER.info(MessageFormat.format("Generation finished after {0} s", Long.toString(end/1000)));
+			
 			
 			if (commandLine.hasOption(DIAGNOSE)) {
 				for (Resource resource : resourceSet.getResources()) {

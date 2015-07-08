@@ -351,7 +351,6 @@ public class Launcher {
 		options.addOption(forceOption);
 		options.addOption(diagnoseOption);
 	}
-
 	/**
 	 * Registers the packages
 	 * @param resource

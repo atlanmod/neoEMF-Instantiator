@@ -74,9 +74,9 @@ public class GenericMetamodelGenerator {
 				// deleting the resource is exists 
 				KyanosUtil.ResourceUtil.INSTANCE.deleteResourceIfExists(resourceURI);
 				// creating the resource
+				LOGGER.info(MessageFormat.format("Creating model with URI {0} ", resourceURI.toString()));
 				Resource resource = resourceSet.createResource(resourceURI);
-				resource.load(Collections.EMPTY_MAP);
-				
+				resource.load(Collections.EMPTY_MAP);		
 				LOGGER.info(MessageFormat.format("Start generation of resource {0} with an average size of {1} elements", 
 						resource.getURI(), averageSize));
 				
@@ -92,6 +92,9 @@ public class GenericMetamodelGenerator {
 		} catch (IOException e) {
 			LOGGER.severe(e.getLocalizedMessage());
 			throw new GenerationException(e);
+		} catch (Exception e) {
+			LOGGER.severe(e.getLocalizedMessage());
+
 		}
 	}
 	

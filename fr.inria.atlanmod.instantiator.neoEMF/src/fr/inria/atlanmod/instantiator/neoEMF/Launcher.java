@@ -6,7 +6,7 @@
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *     Abel G�mez (AtlanMod) - Additional modifications
+ *     Abel Gomez (AtlanMod) - Additional modifications
  *     Amine Benelallam (AtlanMod) - Adaptation for NoeEMF/HBase      
  *******************************************************************************/
 
@@ -232,11 +232,10 @@ public class Launcher {
 			t.printStackTrace(new PrintWriter(stringWriter));
 			System.err.println(stringWriter.toString());
 		} catch (Throwable t) {
-		
 			System.err.println("ERROR: " + t.getLocalizedMessage());
 			StringWriter stringWriter = new StringWriter();
 			t.printStackTrace(new PrintWriter(stringWriter));
-			System.err.println("ERROR: " + stringWriter.toString());
+			System.err.println(t);
 			LOGGER.severe(stringWriter.toString());
 			System.exit(ERROR);
 		} 

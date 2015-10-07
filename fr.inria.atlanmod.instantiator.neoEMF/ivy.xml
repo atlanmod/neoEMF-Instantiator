@@ -9,8 +9,7 @@
 		<dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore.xmi" rev="2.10.1"/>
 		<dependency org="org.eclipse.emf" name="org.eclipse.emf.ecore" rev="2.10.1"/>
 		<dependency org="org.eclipse.emf" name="org.eclipse.emf.common" rev="2.10.1"/>
-		<dependency org="org.apache.hbase" name="hbase-client" rev="1.0.1.1"/>
-		<dependency org="org.apache.hbase" name="hbase-common" rev="1.0.1.1"/>
+		<dependency org="org.apache.hbase" name="hbase" rev="0.94.18"/>
 		<dependency org="org.apache.hadoop" name="hadoop-common" rev="2.6.0"/>
 		<dependency org="commons-lang" name="commons-lang" rev="2.6"/>
 		<dependency org="commons-io" name="commons-io" rev="2.4"/>

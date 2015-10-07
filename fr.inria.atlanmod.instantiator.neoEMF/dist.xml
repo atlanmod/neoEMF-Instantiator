@@ -23,7 +23,7 @@
 	</target>
 
 	<target name="dist.kyanos" depends="check.kyanos" unless="${kyanos.exists}">
-		<pde.exportPlugins destination="${dist.libs.instantiator}" exportSource="false" exportType="directory" plugins="fr.inria.atlanmod.kyanos" useJARFormat="true" qualifier="hbase" />
+		<pde.exportPlugins useworkspacecompiledclasses="true" destination="${dist.libs.instantiator}" exportSource="false" exportType="directory" plugins="fr.inria.atlanmod.kyanos" useJARFormat="true" qualifier="hbase" />
 	</target>
 
 	<target name="dist">
@@ -31,7 +31,10 @@
 		<ivy:retrieve pattern="${dist.libs.ivy}/[conf]/[artifact]-[type]-[revision].[ext]" />
 
 		<jar destfile="${jar.file}">
-			<fileset dir="${bin}" includes="**/*.class" />
+			<fileset dir="${bin}" >
+				<include name = "**/*.class"/>
+				<include name = "**/*.xml"/>
+			</fileset>	
 			<manifest>
 				<attribute name="Main-Class" value="fr.inria.atlanmod.instantiator.neoEMF.Launcher" />
 			</manifest>

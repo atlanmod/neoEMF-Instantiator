@@ -56,7 +56,7 @@ public class GenericMetamodelGenerator {
 
 			DirectWriteSpecimenGenerator generator = new DirectWriteSpecimenGenerator(config, config.getSeed());
 
-			LOGGER.info(MessageFormat.format("Creating {0} models", numberOfModels));
+			LOGGER.info(MessageFormat.format("Creating {0} model{1})", numberOfModels, numberOfModels > 1 ? 's' : ""));
 			
 			LOGGER.info(MessageFormat.format("Generator seed is ''{0}''", config.getSeed()));
 			LOGGER.info(MessageFormat.format("Config parameters: range for models size is [{0}, {1}]", 

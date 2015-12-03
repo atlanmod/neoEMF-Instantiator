@@ -19,6 +19,7 @@ import java.util.Random;
 import java.util.Set;
 
 import org.apache.commons.lang3.Range;
+import org.apache.commons.math3.distribution.AbstractIntegerDistribution;
 import org.apache.commons.math3.distribution.IntegerDistribution;
 import org.apache.commons.math3.distribution.UniformIntegerDistribution;
 import org.eclipse.emf.ecore.EAttribute;
@@ -326,12 +327,26 @@ public class GenericMetamodelConfig implements ISpecimenConfiguration {
 	@Override
 	public IntegerDistribution getDistributionFor(EAttribute eAttribute) {
 		IntegerDistribution distribution = distributions.get(eAttribute);
+		
 		if (distribution == null) {
-			int upperBound = eAttribute.getUpperBound() == EAttribute.UNBOUNDED_MULTIPLICITY ? Integer.MAX_VALUE : eAttribute.getUpperBound();
+			if (! eAttribute.isMany()) {
+				 distribution = new UniformIntegerDistribution(propertiesRange.getMinimum(), propertiesRange.getMaximum());
+				 distribution.reseedRandomGenerator(random.nextLong());
+			} else {
+			final int upperBound = eAttribute.getUpperBound() == EAttribute.UNBOUNDED_MULTIPLICITY ? Integer.MAX_VALUE : eAttribute.getUpperBound();
+			// TODO fix lowerBound when it is equal to 
+			int lowerBound = upperBound == eAttribute.getLowerBound() ? 0 : eAttribute.getLowerBound();
+			int min = Math.max(Math.min(propertiesRange.getMinimum(), upperBound), lowerBound);
+			int max = Math.min(propertiesRange.getMaximum(), upperBound);
+			if (min == max ) {
+				return new MonoValuedIntegerDistribution (min);
+			} else {	
 			distribution = new UniformIntegerDistribution(
-					Math.max(Math.min(propertiesRange.getMinimum(), upperBound), eAttribute.getLowerBound()), 
-					Math.min(propertiesRange.getMaximum(), upperBound));
+					min, 
+					max);
 			distribution.reseedRandomGenerator(random.nextLong());
+				}
+			}
 			distributions.put(eAttribute, distribution);
 		}
 		return distribution;
@@ -351,12 +366,27 @@ public class GenericMetamodelConfig implements ISpecimenConfiguration {
 	@Override
 	public IntegerDistribution getDistributionFor(EReference eReference) {
 		IntegerDistribution distribution = distributions.get(eReference);
+		
 		if (distribution == null) {
-			int upperBound = eReference.getUpperBound() == EAttribute.UNBOUNDED_MULTIPLICITY ? Integer.MAX_VALUE : eReference.getUpperBound();
+			if (! eReference.isMany()) {
+				 distribution = new UniformIntegerDistribution(propertiesRange.getMinimum(), propertiesRange.getMaximum());
+				 distribution.reseedRandomGenerator(random.nextLong());
+			} else {
+			final int upperBound = eReference.getUpperBound() == EAttribute.UNBOUNDED_MULTIPLICITY ? 
+								   Integer.MAX_VALUE : eReference.getUpperBound();
+			// TODO fix lowerBound when it is equal to 
+			int lowerBound = upperBound == eReference.getLowerBound() ? 0 : eReference.getLowerBound();
+			int min = Math.max(Math.min(propertiesRange.getMinimum(), upperBound), lowerBound);
+			int max = Math.min(propertiesRange.getMaximum(), upperBound);
+			if (min == max ) {
+				return new MonoValuedIntegerDistribution (min);
+			} else {	
 			distribution = new UniformIntegerDistribution(
-					Math.max(Math.min(propertiesRange.getMinimum(), upperBound), eReference.getLowerBound()), 
-					Math.min(referencesRange.getMaximum(), upperBound));
+					min, 
+					max);
 			distribution.reseedRandomGenerator(random.nextLong());
+				}
+			}
 			distributions.put(eReference, distribution);
 		}
 		return distribution;
@@ -383,5 +413,53 @@ public class GenericMetamodelConfig implements ISpecimenConfiguration {
 		}
 		
 		return rootEClasses.asList().get(distribution.sample());
+	}
+	
+	@SuppressWarnings({ "deprecation", "serial" })
+	public class MonoValuedIntegerDistribution extends AbstractIntegerDistribution {
+
+			private int value; 
+			
+			public MonoValuedIntegerDistribution(int value) {
+				this.value = value;
+			}
+			@Override
+			public double probability(int x) {
+
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public double cumulativeProbability(int x) {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public double getNumericalMean() {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public double getNumericalVariance() {
+				throw new UnsupportedOperationException();
+			}
+
+			@Override
+			public int getSupportLowerBound() {
+				// TODO Auto-generated method stub
+				return value;
+			}
+
+			@Override
+			public int getSupportUpperBound() {
+				// TODO Auto-generated method stub
+				return value;
+			}
+
+			@Override
+			public boolean isSupportConnected() {
+				throw new UnsupportedOperationException();
+			}
+			
 	}
 }

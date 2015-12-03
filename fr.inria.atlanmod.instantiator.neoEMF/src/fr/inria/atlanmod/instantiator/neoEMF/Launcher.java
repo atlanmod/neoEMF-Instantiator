@@ -206,7 +206,7 @@ public class Launcher {
 			long start = System.currentTimeMillis();
 			modelGen.runGeneration(resourceSet, numberOfModels, size, variation);
 			long end = System.currentTimeMillis();
-			LOGGER.info(MessageFormat.format("Generation finished after {0} s", Long.toString((start-end)/1000)));
+			LOGGER.info(MessageFormat.format("Generation finished after {0} s", Long.toString((end-start)/1000)));
 			
 			
 			if (commandLine.hasOption(DIAGNOSE)) {

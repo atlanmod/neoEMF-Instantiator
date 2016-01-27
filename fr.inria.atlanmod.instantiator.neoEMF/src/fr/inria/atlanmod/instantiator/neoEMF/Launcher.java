@@ -19,7 +19,7 @@ import java.text.MessageFormat;
 import java.util.Comparator;
 import java.util.logging.Logger;
 
-import jline.TerminalFactory;
+import jline.Terminal;
 
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
@@ -232,7 +232,7 @@ public class Launcher {
 			HelpFormatter formatter = new HelpFormatter();
 			formatter.setOptionComparator(new OptionComarator<Option>());
 			try {
-				formatter.setWidth(Math.max(TerminalFactory.get().getWidth(), 80));
+				formatter.setWidth(Math.max(Terminal.getTerminal().getTerminalWidth(), 80));
 			} catch (Throwable t) {
 				LOGGER.warning("Unable to get console information");
 			};

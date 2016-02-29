@@ -43,7 +43,7 @@ import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 
-import fr.inria.atlanmod.kyanos.core.KyanosEObject;
+import fr.inria.atlanmod.neoemf.core.NeoEMFEObject;
 import fr.obeo.emf.specimen.internal.EPackagesData;
 
 /**
@@ -118,6 +118,7 @@ public class DirectWriteSpecimenGenerator {
 						entry.getValue().size()));
 			}
 		}
+		
 		for (Map.Entry<EClass, Collection<String>> entry : indexByKind.asMap().entrySet()) {
 			EClass eClass = entry.getKey();
 			if (eClass.eIsProxy() && EcoreUtil.resolve(eClass, resource) == eClass) {
@@ -188,9 +189,9 @@ public class DirectWriteSpecimenGenerator {
 	private EObject createEObject(EClass eClass, ListMultimap<EClass, String> indexByKind) {
 		EObject eObject = eClass.getEPackage().getEFactoryInstance().create(eClass);
 
-		indexByKind.put(eClass, ((KyanosEObject) eObject).kyanosId());
+		indexByKind.put(eClass, ((NeoEMFEObject) eObject).neoemfId());
 		for (EClass eSuperType : eClass.getEAllSuperTypes()) {
-			indexByKind.put(eSuperType, ((KyanosEObject) eObject).kyanosId());
+			indexByKind.put(eSuperType, ((NeoEMFEObject) eObject).neoemfId());
 		}
 
 		return eObject;

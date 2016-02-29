@@ -22,7 +22,7 @@ import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 
-import fr.inria.atlanmod.kyanos.util.KyanosUtil;
+import fr.inria.atlanmod.neoemf.util.NeoEMFUtil;
 import fr.obeo.emf.specimen.DirectWriteSpecimenGenerator;
 
 /**
@@ -72,7 +72,7 @@ public class GenericMetamodelGenerator {
 				URI resourceURI = formatURI(getMetaModelResourceName(), i, averageSize);
 				
 				// deleting the resource is exists 
-				KyanosUtil.ResourceUtil.INSTANCE.deleteResourceIfExists(resourceURI);
+				NeoEMFUtil.ResourceUtil.INSTANCE.deleteResourceIfExists(resourceURI);
 				// creating the resource
 				LOGGER.info(MessageFormat.format("Creating model with URI {0} ", resourceURI.toString()));
 				Resource resource = resourceSet.createResource(resourceURI);

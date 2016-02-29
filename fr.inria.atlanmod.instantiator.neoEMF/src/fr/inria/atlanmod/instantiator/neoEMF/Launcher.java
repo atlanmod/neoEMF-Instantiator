@@ -43,8 +43,8 @@ import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceImpl;
 
-import fr.inria.atlanmod.kyanos.core.KyanosResourceFactory;
-import fr.inria.atlanmod.kyanos.util.KyanosURI;
+import fr.inria.atlanmod.neoemf.core.NeoEMFResourceFactory;
+import fr.inria.atlanmod.neoemf.util.NeoEMFURI;
 
 /**
  *  
@@ -104,7 +104,7 @@ public class Launcher {
 			resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put(
 					Resource.Factory.Registry.DEFAULT_EXTENSION, new XMIResourceFactoryImpl());
 			resourceSet.getResourceFactoryRegistry().getProtocolToFactoryMap().put(
-					KyanosURI.KYANOS_HBASE_SCHEME, KyanosResourceFactory.eINSTANCE);
+					NeoEMFURI.NEOEMF_HBASE_SCHEME, NeoEMFResourceFactory.eINSTANCE);
 
 			
 		}

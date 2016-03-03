@@ -88,7 +88,7 @@ public class GenericMetamodelConfig implements ISpecimenConfiguration {
 	 *            using this {@link ISpecimenConfiguration}
 	 * @param seed
 	 *            The <code>seed</code> for the generator of {@link Random}
-	 *            numbers. Useful to create models in a detirministic way.
+	 *            numbers. Useful to create models in a deterministic way.
 	 */
 	public GenericMetamodelConfig(Resource metamodelResource, Range<Integer> elementsRange, long seed) {
 		super();

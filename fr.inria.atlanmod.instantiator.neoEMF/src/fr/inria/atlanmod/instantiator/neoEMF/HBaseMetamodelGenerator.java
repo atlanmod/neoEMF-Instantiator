@@ -29,9 +29,9 @@ public class HBaseMetamodelGenerator extends GenericMetamodelGenerator{
 		builder.append(maxElement);
 		builder.append(File.separator);
 		builder.append("valRange");
-		builder.append(config.getValuesRange().getMinimum());
+		builder.append(config.getElementsRange().getMinimum());
 		builder.append(File.separator);
-		builder.append(config.getValuesRange().getMaximum());
+		builder.append(config.getElementsRange().getMaximum());
 		builder.append(File.separator);
 		builder.append(index);
 		return org.eclipse.emf.common.util.URI.createURI(builder.toString());

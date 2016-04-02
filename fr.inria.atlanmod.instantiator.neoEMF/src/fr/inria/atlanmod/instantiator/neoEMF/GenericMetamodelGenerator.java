@@ -24,6 +24,7 @@ import org.eclipse.emf.ecore.resource.ResourceSet;
 
 import fr.inria.atlanmod.neoemf.util.NeoEMFUtil;
 import fr.obeo.emf.specimen.DirectWriteSpecimenGenerator;
+import fr.obeo.emf.specimen.ISpecimenConfiguration;
 
 /**
  * @author <a href="mailto:abel.gomez-llana@inria.fr">Abel G�mez</a>
@@ -35,11 +36,20 @@ public class GenericMetamodelGenerator {
 
 	protected String samplesPath;
 	
-	protected GenericMetamodelConfig config;
+	protected ISpecimenConfiguration config;
 
+	protected IGenerator generator;
+	
+	
 	public GenericMetamodelGenerator(GenericMetamodelConfig config) throws IllegalArgumentException {
 		super();
 		this.config = config;
+		this.generator = new DirectWriteSpecimenGenerator(config, config.getSeed());
+	}
+	
+	public GenericMetamodelGenerator( IGenerator generator) {
+		this.generator = generator;
+		this.config = generator.getConfig();
 	}
 	
 	public String getSamplesPath() {
@@ -54,9 +64,9 @@ public class GenericMetamodelGenerator {
 		
 		try {
 
-			DirectWriteSpecimenGenerator generator = new DirectWriteSpecimenGenerator(config, config.getSeed());
+			
 
-			LOGGER.info(MessageFormat.format("Creating {0} model{1})", numberOfModels, numberOfModels > 1 ? 's' : ""));
+			LOGGER.info(MessageFormat.format("Creating {0} model{1} using as generator {2}", numberOfModels, numberOfModels > 1 ? 's' : "", generator.getClass().getName()));
 			
 			LOGGER.info(MessageFormat.format("Generator seed is ''{0}''", config.getSeed()));
 			LOGGER.info(MessageFormat.format("Config parameters: range for models size is [{0}, {1}]", 

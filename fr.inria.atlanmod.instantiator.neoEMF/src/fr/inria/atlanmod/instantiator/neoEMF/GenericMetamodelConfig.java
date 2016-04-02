@@ -34,7 +34,7 @@ import com.google.common.collect.ImmutableSet;
 import fr.obeo.emf.specimen.ISpecimenConfiguration;
 
 /**
- * @author <a href="mailto:abel.gomez-llana@inria.fr">Abel G�mez</a>
+ * @author <a href="mailto:abel.gomez-llana@inria.fr">Abel Gomez</a>
  * @author <A href="mailto:amine.benelallam@inria.fr">Amine Benelallam</a>
  *
  */
@@ -72,9 +72,7 @@ public class GenericMetamodelConfig implements ISpecimenConfiguration {
 			Math.round(DEFAULT_AVERAGE_VALUES_LENGTH * (1 - DEFAULT_VALUES_DEVIATION)), 
 			Math.round(DEFAULT_AVERAGE_VALUES_LENGTH * (1 + DEFAULT_VALUES_DEVIATION)));
 	
-	
-	
-	Map<Object, IntegerDistribution> distributions = new HashMap<Object, IntegerDistribution>();
+	protected Map<Object, IntegerDistribution> distributions = new HashMap<Object, IntegerDistribution>();
 
 	/**
 	 * Creates a new {@link GenericMetamodelConfig}
@@ -405,6 +403,9 @@ public class GenericMetamodelConfig implements ISpecimenConfiguration {
 
 	@Override
 	public EClass getNextRootEClass(ImmutableSet<EClass> rootEClasses) {
+		if (rootEClasses.size() == 1) 
+			return rootEClasses.asList().get(0);
+		
 		IntegerDistribution distribution = distributions.get(rootEClasses);
 		if (distribution == null) {
 			distribution = new UniformIntegerDistribution(0, rootEClasses.size() - 1);

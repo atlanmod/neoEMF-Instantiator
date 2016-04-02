@@ -43,6 +43,7 @@ import com.google.common.collect.ImmutableMultiset;
 import com.google.common.collect.ImmutableSet;
 import com.google.common.collect.ListMultimap;
 
+import fr.inria.atlanmod.instantiator.neoEMF.IGenerator;
 import fr.inria.atlanmod.neoemf.core.NeoEMFEObject;
 import fr.obeo.emf.specimen.internal.EPackagesData;
 
@@ -50,19 +51,19 @@ import fr.obeo.emf.specimen.internal.EPackagesData;
  * @author <a href="mailto:mikael.barbero@obeo.fr">Mikael Barbero</a>
  * @author <a href="mailto:abel.gomez-llana@inria.fr">Abel G�mez</a>
  */
-public class DirectWriteSpecimenGenerator {
+public class DirectWriteSpecimenGenerator implements IGenerator{
 
-	public final static Logger LOGGER = Logger.getLogger(DirectWriteSpecimenGenerator.class.getName());
+	public static Logger LOGGER = Logger.getLogger(DirectWriteSpecimenGenerator.class.getName());
 
-	private final Random generator;
-	private final ISpecimenConfiguration configuration;
-	private final EPackagesData ePackagesData;
+	protected Random generator;
+	protected ISpecimenConfiguration configuration;
+	protected EPackagesData ePackagesData;
 
 	/* inner Variable state */
-	private int currentDepth;
-	private int currentMaxDepth;
-	private int currentObjects;
-	private int goalObjects;
+	protected int currentDepth;
+	protected int currentMaxDepth;
+	protected int currentObjects;
+	protected int goalObjects;
 
 	public DirectWriteSpecimenGenerator (ISpecimenConfiguration configuration, long seed) {
 		this.configuration = configuration;
@@ -70,6 +71,16 @@ public class DirectWriteSpecimenGenerator {
 		generator = new Random(seed);
 	}
 
+
+	public DirectWriteSpecimenGenerator() {
+		// Do nothing
+	}
+
+
+	@Override
+	public ISpecimenConfiguration getConfig() {
+		return configuration;
+	}
 	public void generate(Resource resource) {
 		
 		resource.setModified(true);
@@ -136,7 +147,7 @@ public class DirectWriteSpecimenGenerator {
 	 * @param eObject
 	 * @param indexByKind
 	 */
-	private void generateCrossReferences(EObject eObject, ListMultimap<EClass, String> indexByKind) {
+	protected void generateCrossReferences(EObject eObject, ListMultimap<EClass, String> indexByKind) {
 		Iterable<EReference> eAllNonContainment = ePackagesData.eAllNonContainment(eObject.eClass());
 		for (EReference eReference : eAllNonContainment) {
 			EClass eReferenceType = eReference.getEReferenceType();
@@ -167,7 +178,7 @@ public class DirectWriteSpecimenGenerator {
 		}
 	}
 
-	private List<EObject> resolveObjectsOfType(EClass eReferenceType, ListMultimap<EClass, String> indexByKind, Resource resource) {
+	protected List<EObject> resolveObjectsOfType(EClass eReferenceType, ListMultimap<EClass, String> indexByKind, Resource resource) {
 		List<EObject> possibleValues = new LinkedList<EObject>();
 		for (String uriFrag : indexByKind.get(eReferenceType)) {
 			possibleValues.add(resource.getEObject(uriFrag));
@@ -175,7 +186,7 @@ public class DirectWriteSpecimenGenerator {
 		return possibleValues;
 	}
 
-	private Optional<EObject> generateEObject(EClass eClass, ListMultimap<EClass, String> indexByKind) {
+	protected Optional<EObject> generateEObject(EClass eClass, ListMultimap<EClass, String> indexByKind) {
 		final EObject eObject;
 		currentObjects++;
 		LOGGER.fine(MessageFormat.format("Generating EObject {0} / ~{1} (EClass={2})", 
@@ -186,7 +197,7 @@ public class DirectWriteSpecimenGenerator {
 		return Optional.fromNullable(eObject);
 	}
 
-	private EObject createEObject(EClass eClass, ListMultimap<EClass, String> indexByKind) {
+	protected EObject createEObject(EClass eClass, ListMultimap<EClass, String> indexByKind) {
 		EObject eObject = eClass.getEPackage().getEFactoryInstance().create(eClass);
 
 		indexByKind.put(eClass, ((NeoEMFEObject) eObject).neoemfId());
@@ -202,7 +213,7 @@ public class DirectWriteSpecimenGenerator {
 	 * @param eClass
 	 * @param indexByKind
 	 */
-	private void generateEContainmentReferences(EObject eObject, EClass eClass,
+	protected void generateEContainmentReferences(EObject eObject, EClass eClass,
 			ListMultimap<EClass, String> indexByKind) {
 		for (EReference eReference : ePackagesData.eAllContainment(eClass)) {
 			if (eReference.isRequired() || (currentObjects < goalObjects && currentDepth <= currentMaxDepth)) {
@@ -217,7 +228,7 @@ public class DirectWriteSpecimenGenerator {
 	 * @param eReference
 	 * @param indexByKind
 	 */
-	private void generateEContainmentReference(EObject eObject, EReference eReference,
+	protected void generateEContainmentReference(EObject eObject, EReference eReference,
 			ListMultimap<EClass, String> indexByKind) {
 		currentDepth++;
 
@@ -236,7 +247,7 @@ public class DirectWriteSpecimenGenerator {
 		currentDepth--;
 	}
 
-	private void generateSingleContainmentReference(EObject eObject, EReference eReference,
+	protected void generateSingleContainmentReference(EObject eObject, EReference eReference,
 			ListMultimap<EClass, String> indexByKind, ImmutableMultiset<EClass> eAllConcreteSubTypesOrSelf) {
 		IntegerDistribution distribution = configuration.getDistributionFor(eReference);
 		if (eReference.isRequired() || booleanInDistribution(distribution)) {
@@ -249,7 +260,7 @@ public class DirectWriteSpecimenGenerator {
 		}
 	}
 
-	private void generateManyContainmentReference(EObject eObject, EReference eReference,
+	protected void generateManyContainmentReference(EObject eObject, EReference eReference,
 			ListMultimap<EClass, String> indexByKind, ImmutableMultiset<EClass> eAllConcreteSubTypesOrSelf) {
 		IntegerDistribution distribution = configuration.getDistributionFor(eReference);
 		@SuppressWarnings("unchecked")
@@ -265,7 +276,7 @@ public class DirectWriteSpecimenGenerator {
 		}
 	}
 
-	private ImmutableMultiset<EClass> getEReferenceTypesWithWeight(EReference eReference,
+	protected ImmutableMultiset<EClass> getEReferenceTypesWithWeight(EReference eReference,
 			ImmutableList<EClass> eAllSubTypesOrSelf) {
 		ImmutableMultiset.Builder<EClass> eAllSubTypesOrSelfWithWeights = ImmutableMultiset.builder();
 		for (EClass eClass : eAllSubTypesOrSelf) {
@@ -278,13 +289,13 @@ public class DirectWriteSpecimenGenerator {
 	 * @param eObject
 	 * @param eClass
 	 */
-	private void generateEAttributes(EObject eObject, EClass eClass) {
+	protected void generateEAttributes(EObject eObject, EClass eClass) {
 		for (EAttribute eAttribute : ePackagesData.eAllAttributes(eClass)) {
 			generateAttributes(eObject, eAttribute);
 		}
 	}
 
-	private void generateAttributes(EObject eObject, EAttribute eAttribute) {
+	protected void generateAttributes(EObject eObject, EAttribute eAttribute) {
 		IntegerDistribution distribution = configuration.getDistributionFor(eAttribute);
 		EDataType eAttributeType = eAttribute.getEAttributeType();
 		Class<?> instanceClass = eAttributeType.getInstanceClass();
@@ -295,7 +306,7 @@ public class DirectWriteSpecimenGenerator {
 		}
 	}
 
-	private void generateSingleAttribute(EObject eObject, EAttribute eAttribute, IntegerDistribution distribution,
+	protected void generateSingleAttribute(EObject eObject, EAttribute eAttribute, IntegerDistribution distribution,
 			Class<?> instanceClass) {
 		if (eAttribute.isRequired() || booleanInDistribution(distribution)) {
 			final Object value;
@@ -314,7 +325,7 @@ public class DirectWriteSpecimenGenerator {
 		}
 	}
 
-	private void generateManyAttribute(EObject eObject, EAttribute eAttribute, IntegerDistribution distribution,
+	protected void generateManyAttribute(EObject eObject, EAttribute eAttribute, IntegerDistribution distribution,
 			Class<?> instanceClass) {
 		@SuppressWarnings("unchecked")
 		List<Object> values = (List<Object>) eObject.eGet(eAttribute);
@@ -335,7 +346,7 @@ public class DirectWriteSpecimenGenerator {
 		}
 	}
 
-	private Object nextValue(Class<?> instanceClass) {
+	protected Object nextValue(Class<?> instanceClass) {
 		final Object value;
 		if (instanceClass.isPrimitive() || isWrapperType(instanceClass)) {
 			value = nextPrimitive(unwrap(instanceClass));
@@ -348,7 +359,7 @@ public class DirectWriteSpecimenGenerator {
 	/**
 	 * @param instanceClass
 	 */
-	private Object nextObject(Class<?> instanceClass) {
+	protected Object nextObject(Class<?> instanceClass) {
 		if (instanceClass == String.class) {
 			return RandomStringUtils.random(
 					configuration.getValueDistributionFor(instanceClass).sample(), 
@@ -366,7 +377,7 @@ public class DirectWriteSpecimenGenerator {
 	 * @param eAttribute
 	 * @param instanceClass
 	 */
-	private Object nextPrimitive(Class<?> instanceClass) {
+	protected Object nextPrimitive(Class<?> instanceClass) {
 		if (instanceClass == boolean.class) {
 			return generator.nextBoolean();
 		} else if (instanceClass == byte.class) {
@@ -392,8 +403,9 @@ public class DirectWriteSpecimenGenerator {
 		}
 	}
 
-	private boolean booleanInDistribution(IntegerDistribution distribution) {
+	protected boolean booleanInDistribution(IntegerDistribution distribution) {
 		int sample = distribution.sample();
 		return sample <= distribution.getNumericalMean();
 	}
+
 }

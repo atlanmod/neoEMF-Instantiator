@@ -7,11 +7,12 @@
  * 
  * Contributors:
  *     Obeo - initial API and implementation
- *     Abel Gómez (AtlanMod) - Additional modifications      
+ *     Abel Gï¿½mez (AtlanMod) - Additional modifications      
 *******************************************************************************/
 
 package fr.obeo.emf.specimen;
 
+import org.apache.commons.lang3.Range;
 import org.apache.commons.math3.distribution.BinomialDistribution;
 import org.apache.commons.math3.distribution.IntegerDistribution;
 import org.eclipse.emf.ecore.EAttribute;
@@ -20,12 +21,13 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.resource.Resource;
 
 import com.google.common.collect.ImmutableSet;
 
 /**
  * @author <a href="mailto:mikael.barbero@obeo.fr">Mikael Barbero</a>
- * @author <a href="mailto:abel.gomez-llana@inria.fr">Abel Gómez</a>
+ * @author <a href="mailto:abel.gomez-llana@inria.fr">Abel Gï¿½mez</a>
  */
 public interface ISpecimenConfiguration {
 
@@ -136,5 +138,59 @@ public interface ISpecimenConfiguration {
 	 * @return
 	 */
 	IntegerDistribution getDepthDistributionFor(EClass eClass);
+
+	/**
+	 * 
+	 * @return
+	 */
+	Range<Integer> getElementsRange();
+
+	/**
+	 * 
+	 * @return
+	 */
+	Range<Integer> getPropertiesRange();
+
+	/**
+	 * 
+	 * @return
+	 */
+	Range<Integer> getReferencesRange();
+
+	/**
+	 * 
+	 * @return
+	 */
+	Range<Integer> getValuesRange();
+	/**
+	 * 
+	 * @return
+	 */
+	long getSeed();
+	/**
+	 * 
+	 * @return
+	 */
+	Resource getMetamodelResource();
+	/**
+	 * 
+	 * @param min
+	 * @param max
+	 */
+	void setValuesRange(int min, int max);
+	/**
+	 * 
+	 * @param min
+	 * @param max
+	 */
+	void setPropertiesRange(int min, int max);
+
+	/**
+	 * 
+	 * @param min
+	 * @param max
+	 */
+	void setReferencesRange(int min, int max);
+
 
 }

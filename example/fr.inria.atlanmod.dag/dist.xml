@@ -16,14 +16,14 @@
 	<property name="create.run" value="${dist}/run.sh" />
 	<property name="create.debug" value="${dist}/debug.sh" />
 
-	<property name="jar.file" location="${dist}/${ant.project.name}.instantiator.jar" />
+	<property name="jar.file" location="${dist}/${ant.project.name}.jar" />
 
 	<target name="check.kyanos" unless="kyanos.exists">
-		<available property="kyanos.exists" file="${dist.libs.instantiator}/plugins/fr.inria.atlanmod.neoEMF.0.1.0.hbase.jar" />
+		<available property="kyanos.exists" file="${dist.libs.instantiator}/plugins/fr.inria.atlanmod.kyanos.0.1.0.hbase.jar" />
 	</target>
 
 	<target name="dist.kyanos" depends="check.kyanos" unless="${kyanos.exists}">
-		<pde.exportPlugins useworkspacecompiledclasses="true" destination="${dist.libs.instantiator}" exportSource="false" exportType="directory" plugins="fr.inria.atlanmod.neoEMF" useJARFormat="true" qualifier="hbase" />
+		<pde.exportPlugins useworkspacecompiledclasses="true" destination="${dist.libs.instantiator}" exportSource="false" exportType="directory" plugins="fr.inria.atlanmod.kyanos" useJARFormat="true" qualifier="hbase" />
 	</target>
 
 	<target name="dist">
@@ -36,7 +36,7 @@
 				<include name = "**/*.xml"/>
 			</fileset>	
 			<manifest>
-				<attribute name="Main-Class" value="fr.inria.atlanmod.dag.instantiator.Launcher" />
+				<attribute name="Main-Class" value="fr.inria.atlanmod.instantiator.neoEMF.Launcher" />
 			</manifest>
 		</jar>
 
@@ -84,7 +84,6 @@
 						shift
 
 						case $key in
-						   
 						    -u | --suffixe)
 						    ARGS=$ARGS' -u '$1
 						    shift
@@ -144,8 +143,7 @@
 						key="$1"
 						shift
 
-
-						    ;;
+						case $key in
 						    -u | --suffixe)
 						    ARGS=$ARGS' -u '$1
 						    shift
@@ -190,7 +188,7 @@
 			echo 'jars are: '$JARS
 			echo 'args are: '$ARGS
 
-			java -cp fr.inria.atlanmod.dag.instantiator.jar:$JARS fr.inria.atlanmod.dag.instantiator.Launcher $ARGS
+			java -cp fr.inria.atlanmod.instantiator.neoEMF.jar:$JARS fr.inria.atlanmod.instantiator.neoEMF.Launcher $ARGS
 		</echo>
 	</target>
 

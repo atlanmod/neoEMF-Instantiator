@@ -1,13 +1,12 @@
 /*******************************************************************************
- * Copyright (c) 2015 Abel G�mez (AtlanMod) 
+ * Copyright (c) 2015  (AtlanMod Inria, Mines Nantes, Lina) 
  * All rights reserved. This program and the accompanying materials are made
  * available under the terms of the Eclipse Public License v1.0 which
  * accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  * 
  * Contributors:
- *     Abel Gomez (AtlanMod) - Additional modifications
- *     Amine Benelallam (AtlanMod) - Adaptation for NoeEMF/HBase      
+ *     Amine Benelallam (AtlanMod) - Adaptation for NoeEMF-HBase      
  *******************************************************************************/
 
 package fr.inria.atlanmod.dag.instantiator;
@@ -54,7 +53,6 @@ import fr.obeo.emf.specimen.ISpecimenConfiguration;
 
 /**
  *  
- * @author <a href="mailto:abel.gomez-llana@inria.fr">Abel Gomez</a>
  * @author <a href="mailto:amine.benelallam@inria.fr">Amine Benelallam</a>
  *
  */

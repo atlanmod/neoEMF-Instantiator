@@ -15,17 +15,25 @@
 	<property name="dist.libs.instantiator" location="${dist.libs}/instantiator" />
 	<property name="create.run" value="${dist}/run.sh" />
 	<property name="create.debug" value="${dist}/debug.sh" />
-
+	
+	<property name="instantiator.project.path" value="/home/atlanmod-17/git/atlzoo/fr.inria.atlanmod.instantiator"/>
 	<property name="jar.file" location="${dist}/${ant.project.name}.jar" />
 
 	<target name="check.kyanos" unless="kyanos.exists">
-		<available property="kyanos.exists" file="${dist.libs.instantiator}/plugins/fr.inria.atlanmod.kyanos.0.1.0.hbase.jar" />
+		<available property="kyanos.exists" file="${dist.libs.instantiator}/plugins/fr.inria.atlanmod.neoemf_0.1.0.hadoop2.jar" />
 	</target>
 
 	<target name="dist.kyanos" depends="check.kyanos" unless="${kyanos.exists}">
-		<pde.exportPlugins useworkspacecompiledclasses="true" destination="${dist.libs.instantiator}" exportSource="false" exportType="directory" plugins="fr.inria.atlanmod.kyanos" useJARFormat="true" qualifier="hbase" />
+		<pde.exportPlugins useworkspacecompiledclasses="true" destination="${dist.libs.instantiator}" exportSource="false" exportType="directory" plugins="fr.inria.atlanmod.neoemf.hbase" useJARFormat="true" qualifier="hadoop2" />
 	</target>
-
+	
+	<jar destfile="${instantiator.file}">
+						<fileset dir="${instantiator.project.path}/bin" >
+							<include name = "**/*.class"/>
+							<include name = "**/*.xml"/>
+						</fileset>	
+	</jar>
+	
 	<target name="dist">
 		<ivy:resolve refresh="true" showprogress="true" />
 		<ivy:retrieve pattern="${dist.libs.ivy}/[conf]/[artifact]-[type]-[revision].[ext]" />
@@ -128,7 +136,7 @@
 			echo 'jars are: '$JARS
 			echo 'args are: '$ARGS
 
-			java -Xdebug -Xrunjdwp:transport=dt_socket,address=localhost:8998,server=y,suspend=y -cp fr.inria.atlanmod.instantiator.neoEMF.jar:$JARS fr.inria.atlanmod.instantiator.neoEMF.Launcher $ARGS
+			java -Xdebug -Xrunjdwp:transport=dt_socket,address=localhost:8998,server=y,suspend=y -cp fr.inria.atlanmod.dag.jar:fr.inria.atlanmod.instantiator.neoEMF.jar:$JARS fr.inria.atlanmod.instantiator.neoEMF.Launcher $ARGS
 				</echo>
 	</target>
 
@@ -188,7 +196,7 @@
 			echo 'jars are: '$JARS
 			echo 'args are: '$ARGS
 
-			java -cp fr.inria.atlanmod.instantiator.neoEMF.jar:$JARS fr.inria.atlanmod.instantiator.neoEMF.Launcher $ARGS
+			java -cp fr.inria.atlanmod.instantiator.neoEMF.jar:fr.inria.atlanmod.dag.jar:$JARS fr.inria.atlanmod.dag.instantiator.Launcher $ARGS
 		</echo>
 	</target>
 

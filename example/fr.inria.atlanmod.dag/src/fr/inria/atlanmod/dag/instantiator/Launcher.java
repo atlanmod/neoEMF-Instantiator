@@ -63,7 +63,6 @@ public class Launcher {
 
 	private static final int DEFAULT_AVERAGE_MODEL_SIZE = 1000;
 	private static final float DEFAULT_DEVIATION = 0.1f;
-	private static final float DEFAULT_DENSITY = 3.0f;
 	
 	private static final int ERROR = 1;
 
@@ -78,8 +77,6 @@ public class Launcher {
 	private static final String VARIATION_LONG				= "variation";
 	private static final String PROP_VARIATION 				= "p";
 	private static final String PROP_VARIATION_LONG			= "properties-variation";
-	private static final String GRAPH_DENSITY 				= "d";
-	private static final String GRAPH_DENSITY_LONG			= "graph-density";
 	private static final String DEGREE 						= "r";
 	private static final String DEGREE_LONG 				= "references-degree";
 	private static final String VALUES_SIZE 				= "z";
@@ -92,7 +89,7 @@ public class Launcher {
 	private static final String DIAGNOSE_LONG				= "diagnose";
 
 	private static class OptionComarator<T extends Option> implements Comparator<T> {
-	    private static final String OPTS_ORDER = "unspdrzefg";
+	    private static final String OPTS_ORDER = "unvspdrzefg";
 
 	    @Override
 		public int compare(T o1, T o2) {
@@ -150,11 +147,6 @@ public class Launcher {
 				variation = number.floatValue();
 			}
 			
-			float density = Launcher.DEFAULT_DENSITY;
-			if (commandLine.hasOption(GRAPH_DENSITY)) {
-				Number number = (Number) commandLine.getParsedOptionValue(GRAPH_DENSITY);
-				variation = number.floatValue();
-			}
 			
 			float propVariation = Launcher.DEFAULT_DEVIATION;
 			if (commandLine.hasOption(PROP_VARIATION)) {
@@ -199,10 +191,10 @@ public class Launcher {
 			}
 
 			int referencesSize = GenericMetamodelConfig.DEFAULT_AVERAGE_REFERENCES_SIZE;
-			if (commandLine.hasOption(VALUES_SIZE)) {
+			if (commandLine.hasOption(DEGREE)) {
 				Number number = (Number) commandLine.getParsedOptionValue(DEGREE);
 				referencesSize = (int) Math.min(Integer.MAX_VALUE, number.longValue());
-			}
+			} 
 			
 			config.setValuesRange(
 					Math.round(valuesSize * (1 - propVariation)), 
@@ -326,15 +318,7 @@ public class Launcher {
 		densityOption.setType(Number.class);
 		densityOption.setArgs(1);
 
-		Option variationOption = OptionBuilder.create(GRAPH_DENSITY);
-		variationOption.setLongOpt(GRAPH_DENSITY_LONG);
-		variationOption.setArgName("graph density");
-		variationOption.setDescription(
-				MessageFormat.format(" The Graph density is the proportion of edge(s) per vertex (defaults to {0})",
-				Launcher.DEFAULT_DENSITY));
-		variationOption.setType(Number.class);
-		variationOption.setArgs(1);
-		
+	
 		Option propVariationOption = OptionBuilder.create(PROP_VARIATION);
 		propVariationOption.setLongOpt(PROP_VARIATION_LONG);
 		propVariationOption.setArgName("properties deviation");
@@ -376,12 +360,10 @@ public class Launcher {
 		Option diagnoseOption = OptionBuilder.create(DIAGNOSE);
 		diagnoseOption.setLongOpt(DIAGNOSE_LONG);
 		diagnoseOption.setDescription("Run diagnosis on the result model");
-		
-		
+				
 		options.addOption(outDirOpt);
 		options.addOption(nModelsOpt);
 		options.addOption(sizeOption);
-		options.addOption(variationOption);
 		options.addOption(propVariationOption);
 		options.addOption(valuesSizeOption);
 		options.addOption(degreeOption);

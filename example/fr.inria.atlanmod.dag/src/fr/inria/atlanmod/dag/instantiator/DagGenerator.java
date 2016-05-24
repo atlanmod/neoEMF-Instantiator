@@ -12,8 +12,6 @@
 
 package fr.inria.atlanmod.dag.instantiator;
 
-import static com.google.common.collect.Iterables.get;
-
 import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
@@ -39,6 +37,7 @@ import com.google.common.collect.ListMultimap;
 import fr.inria.atlanmod.dag.DagPackage;
 import fr.inria.atlanmod.dag.Edge;
 import fr.inria.atlanmod.dag.Vertex;
+import fr.inria.atlanmod.dag.impl.DagPackageImpl;
 import fr.obeo.emf.specimen.DirectWriteSpecimenGenerator;
 import fr.obeo.emf.specimen.ISpecimenConfiguration;
 import fr.obeo.emf.specimen.internal.EPackagesData;
@@ -51,9 +50,15 @@ public class DagGenerator extends DirectWriteSpecimenGenerator{
 
 	protected ListMultimap<EClass, String> indexByKind = ArrayListMultimap.create();
 	int verticesSize;
+	private final EClass edgeClass = DagPackageImpl.eINSTANCE.getEdge();
+	private final EClass vertexClass = DagPackageImpl.eINSTANCE.getVertex();
 	private EObject rootObject;
 	private final DagPackage dagPck = DagPackage.eINSTANCE;
-
+    /**
+     * 
+     */
+	ListMultimap<String, String> edgesIndex = ArrayListMultimap.create();
+    
 	public DagGenerator() {
 		super();
 	}
@@ -82,7 +87,6 @@ public class DagGenerator extends DirectWriteSpecimenGenerator{
 		currentMaxDepth = configuration.getDepthDistributionFor(eClass).sample();
 		generateRootEObject(eClass, indexByKind);
 		resource.getContents().add(rootObject);
-		
 		LOGGER.info("Generating edges");
 
 		int totalEObjects = currentObjects;
@@ -95,9 +99,9 @@ public class DagGenerator extends DirectWriteSpecimenGenerator{
 			generateCrossReferencesForVertex(eObject, indexByKind);
 		}
 
-		LOGGER.info(MessageFormat.format("Requested #EObject={0}", goalObjects));
+		LOGGER.info(MessageFormat.format("Requested #All={0}", goalObjects));
 		
-		LOGGER.info(MessageFormat.format("Actual #EObject={0}", ImmutableSet.copyOf(indexByKind.values()).size()));
+		LOGGER.info(MessageFormat.format("Actual #Vertices={0}", ImmutableSet.copyOf(indexByKind.values()).size()));
 
 		for (Map.Entry<EClass, Collection<String>> entry : indexByKind.asMap().entrySet()) {
 			// Log number of elements for resolved EClasses
@@ -120,7 +124,7 @@ public class DagGenerator extends DirectWriteSpecimenGenerator{
 			}
 		}
 
-		LOGGER.info(MessageFormat.format("Generation finished for resource ''{0}''", resource.getURI()));
+		LOGGER.info(MessageFormat.format("Generation finished for resource ''{0}'' with size ''{1}''", resource.getURI(), goalObjects));
 	}
 
 
@@ -133,8 +137,7 @@ public class DagGenerator extends DirectWriteSpecimenGenerator{
 		
 		eObject = createEObject(eClass, indexByKind);
 		rootObject = eObject;
-		generateEAttributes(eObject, eClass);
-		generateVertices();
+		generateVertices(rootObject, dagPck.getDAG_Vertices(), indexByKind);
 		return Optional.fromNullable(eObject);
 	}
 	@SuppressWarnings("unchecked")
@@ -145,121 +148,102 @@ public class DagGenerator extends DirectWriteSpecimenGenerator{
 			//EClass eReferenceType = eReference.getEReferenceType();
 			IntegerDistribution distribution = configuration.getDistributionFor(eReference);
 	
-				List<Object> values = (List<Object>) eObject.eGet(eReference);
+				//List<Object> values = (List<Object>) eObject.eGet(eReference);
 				int sample = distribution.sample();	
 				LOGGER.fine(MessageFormat.format("Generating {0} values for EReference ''{1}'' in EObject {2}", sample, eReference.getName(), eObject.toString()));
 				for (int i = 0; i < Math.min(sample, verticesSize - i ); i++) {
 					// check the edge does not already exist
+					IntegerDistribution distId = configuration.getDistributionFor(dagPck.getEdge_Id());
 					EObject nextEObject = null;
 					int count = verticesSize-i;
 					while (count-- > 0) {// limiting max iteration to the number of remaining elements 
 						 nextEObject = ((List<EObject>) 
 								rootObject.eGet(dagPck.getDAG_Vertices())).get(generator.nextInt(verticesSize-i) + i);
-						 if (! existingEdge(eObject, nextEObject)) break;
+						 if (! existingEdge((Vertex)eObject, (Vertex) nextEObject)) break;
 						 
 					}
 						 if (nextEObject != null &&
 								 !nextEObject.equals(eObject)) {
-							Optional<EObject> edge = generateEdge(eObject, nextEObject);
-							if (edge.isPresent()) {
-								values.add(edge.get());
-								((List<EObject>) rootObject.eGet(dagPck.getDAG_Edges())).add(edge.get());
-							}
+							    Optional<Edge> edge =  generateEdge(eObject, nextEObject,distId);
+							    if (edge.isPresent()) {
+							    	//values.add(edge.get());
+									((List<EObject>) rootObject.eGet(dagPck.getDAG_Edges())).add(edge.get());	
+							    }					
 						}
 					}
 	}
 	
-	@SuppressWarnings("unchecked")
-	private boolean existingEdge(EObject eObject, EObject nextEObject) {
-		for ( EObject e : (List<EObject>) eObject.eGet(dagPck.getVertex_Outgoing())) {
-			if (e.eGet(dagPck.getEdge_To()).equals(nextEObject))
-				return true;
-		}
-		return false;
+	private boolean existingEdge(Vertex eObject, Vertex nextEObject) {	
+		return edgesIndex.containsEntry(eObject.neoemfId(), nextEObject.neoemfId());
 	}
-	private Optional<EObject> generateEdge(EObject eObject, EObject nextEObject) {
-		Optional<EObject> result = generateEObject(dagPck.getEdge(), indexByKind);
+	
+	private Optional<Edge> generateEdge(EObject eObject, EObject nextEObject,IntegerDistribution distId) {
 		
-		if (result.isPresent()) {
-			Edge edge = (Edge)result.get();
+		//TODO optimize this, use the edges index instead
+			LOGGER.info(MessageFormat.format("Generating EObject {0} / ~{1} (EClass={2})", 
+				currentObjects, goalObjects, edgeClass.getName()));
+			currentObjects++;
+			Edge edge =  (Edge) edgeClass.getEPackage().getEFactoryInstance().create(edgeClass);
+			
+			generateSingleAttribute(edge, dagPck.getEdge_Id(), distId, dagPck.getEdge_Id().getEType().getInstanceClass());
 			edge.setFrom((Vertex) eObject);
 			edge.setTo((Vertex) nextEObject);
-		}
-		return result;
+			edgesIndex.put(((Vertex) eObject).neoemfId(), ((Vertex) nextEObject).neoemfId());
+		return Optional.fromNullable(edge);
 	}
 
 
-	protected Optional<EObject> generateEObject(EClass eClass, ListMultimap<EClass, String> indexByKind) {
-		final EObject eObject;
-		currentObjects++;
-		LOGGER.fine(MessageFormat.format("Generating EObject {0} / ~{1} (EClass={2})", 
-				currentObjects, goalObjects, eClass.getName()));
-		eObject = createEObject(eClass, indexByKind);
-		generateEAttributes(eObject, eClass);
-		//generateEContainmentReferences(eObject, eClass, indexByKind);
-		return Optional.fromNullable(eObject);
-	}
-
-	/**
-	 * @param eObject
-	 * @param eClass
-	 * @param indexByKind
-	 */
-	protected void generateVertices() {
-			// generate vertices 
-			generateEContainmentReference(rootObject, dagPck.getDAG_Vertices(), indexByKind);	
-
-		}
+//	protected Optional<EObject> generateEdge(EClass eClass, ListMultimap<String, String> indexByKind) {
+//		final EObject eObject;
+//		currentObjects++;
+//		eObject = edgeClass.getEPackage().getEFactoryInstance().create(edgeClass);
+//		generateEAttributes(eObject, eClass);
+//		//generateEContainmentReferences(eObject, eClass, indexByKind);
+//		return Optional.fromNullable(eObject);
+//	}
 
 	/**
 	 * @param eObject
 	 * @param eReference
 	 * @param indexByKind
 	 */
-	protected void generateEContainmentReference(EObject eObject, EReference eReference,
+	protected void generateVertices(EObject eObject, EReference eReference,
 			ListMultimap<EClass, String> indexByKind) {
 
 
 		ImmutableList<EClass> eAllConcreteSubTypeOrSelf = ePackagesData.eAllConcreteSubTypeOrSelf(eReference);
 		ImmutableMultiset<EClass> eAllConcreteSubTypesOrSelf = getEReferenceTypesWithWeight(eReference,
 				eAllConcreteSubTypeOrSelf);
-		
-		generateManyContainmentReference(eObject, eReference, indexByKind, eAllConcreteSubTypesOrSelf);
+		IntegerDistribution distribution = configuration.getDistributionFor(eReference);
+		generateManyContainmentReference(eObject, eReference, indexByKind, eAllConcreteSubTypesOrSelf,distribution);
 
 	}
 
 	protected void generateManyContainmentReference(EObject eObject, EReference eReference,
-			ListMultimap<EClass, String> indexByKind, ImmutableMultiset<EClass> eAllConcreteSubTypesOrSelf) {
-		IntegerDistribution distribution = configuration.getDistributionFor(eReference);
+		ListMultimap<EClass, String> indexByKind, ImmutableMultiset<EClass> eAllConcreteSubTypesOrSelf, IntegerDistribution distribution) {
+		
 		@SuppressWarnings("unchecked")
 		List<EObject> values = (List<EObject>) eObject.eGet(eReference);
 		verticesSize = distribution.sample();
 		LOGGER.fine(MessageFormat.format("Generating {0} values for EReference ''{1}'' in EObject {2}", verticesSize, eReference.getName(), eObject.toString()));
+		IntegerDistribution distributionId = configuration.getDistributionFor(dagPck.getVertex_Id());
 		for (int i = 0; i < verticesSize; i++) {
-			int idx = generator.nextInt(eAllConcreteSubTypesOrSelf.size());
-			final Optional<EObject> nextEObject = generateEObject(get(eAllConcreteSubTypesOrSelf, idx), indexByKind);
+			final Optional<EObject> nextEObject = generateVertex(vertexClass, indexByKind,distributionId);
 			if (nextEObject.isPresent()) {
 				values.add(nextEObject.get());
 			}
 		}
 	}
+	private Optional<EObject> generateVertex(EClass eClass,
+			ListMultimap<EClass, String> indexByKind, IntegerDistribution distribtion) {
+			final EObject eObject;
+			currentObjects++;
+			LOGGER.fine(MessageFormat.format("Generating EObject {0} / ~{1} (EClass={2})", 
+					currentObjects, goalObjects, eClass.getName()));
+			eObject = createEObject(eClass, indexByKind);
+			generateSingleAttribute(eObject, dagPck.getVertex_Id(), distribtion, dagPck.getVertex_Id().getEType().getInstanceClass());
+			return Optional.fromNullable(eObject);
+		}
+	}
 
 
-
-//	protected boolean areCodependent(String trgUri, String srcUri) {
-//		
-//		return trgUri.compareTo(srcUri) > 0;
-////		if (ancestors.get(srcUri).size() == 1) {
-////			return false;
-////		} 
-////		
-////		if (ancestors.containsEntry(srcUri, trgUri))
-////				return true;
-////		for (String newTrg : ancestors.get(srcUri)){
-////			if (areCodependent(newTrg, trgUri));
-////				return true;
-////		}
-////		
-////		return false;
-//	}
-}

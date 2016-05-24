@@ -44,7 +44,7 @@ public class GenericMetamodelConfig implements ISpecimenConfiguration {
 
 	public static final int DEFAULT_AVERAGE_REFERENCES_SIZE = 8;
 
-	public static final int DEFAULT_AVERAGE_VALUES_LENGTH = 64;
+	public static final int DEFAULT_AVERAGE_VALUES_LENGTH = 24; // minimal size encouraged by HBase
 	
 	public static final float DEFAULT_PROPERTIES_DEVIATION = 0.1f;
 	

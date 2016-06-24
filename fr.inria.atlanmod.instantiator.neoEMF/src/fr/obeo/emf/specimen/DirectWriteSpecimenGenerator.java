@@ -49,7 +49,8 @@ import fr.obeo.emf.specimen.internal.EPackagesData;
 
 /**
  * @author <a href="mailto:mikael.barbero@obeo.fr">Mikael Barbero</a>
- * @author <a href="mailto:abel.gomez-llana@inria.fr">Abel G�mez</a>
+ * @author <a href="mailto:abel.gomez-llana@inria.fr">Abel Gomez</a>
+ * @author <a href="mailto:abel.gomez-llana@inria.fr">Amine Benelallam</a>
  */
 public class DirectWriteSpecimenGenerator implements IGenerator{
 
